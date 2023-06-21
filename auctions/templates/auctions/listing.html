@@ -1,7 +1,7 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-<form action="{% url 'new_listing' %}" method="post">
+<form action="{% url 'save_listing' %}" method="post">
     {% csrf_token %}
     <div class="form-group">
         <input class="form-control" autofocus type="text" name="title" placeholder="Listing Title">

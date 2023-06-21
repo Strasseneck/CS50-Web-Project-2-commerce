@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from .models import User
+from auctions.models import Listing
 
 
 def index(request):
@@ -61,3 +62,21 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
+
+def new_listing(request):
+    return render(request, "auctions/listing.html")
+
+def save_listing(request):
+    if request.method == "POST":
+        # Get data from form
+        title = request.POST["title"]
+        description = request.POST["description"]
+        img = request.POST["img_url"]
+        bid = request.POST["starting_bid"]
+        category = request.POST["category"]
+        # Save listing
+        listing = Listing(title=title,description=description,img_url=img,starting_bid=bid,category=category)
+        listing.save()
+        return render(request, "auctions/index.html")
+
+
