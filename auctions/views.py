@@ -38,7 +38,6 @@ def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("index"))
 
-
 def register(request):
     if request.method == "POST":
         username = request.POST["username"]
@@ -66,7 +65,7 @@ def register(request):
         return render(request, "auctions/register.html")
 
 def new_listing(request):
-    return render(request, "auctions/listing.html")
+    return render(request, "auctions/new_listing.html")
 
 def save_listing(request):
     if request.method == "POST":
@@ -81,4 +80,10 @@ def save_listing(request):
         listing.save()
         return render(request, "auctions/index.html")
 
+def listing(request, title):
+    listing = Listing.objects.get(title=title)
+    return render(request, "auctions/listing.html", {
+        "listing": listing
+
+    })
 

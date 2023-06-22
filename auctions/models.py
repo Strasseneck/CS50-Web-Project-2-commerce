@@ -3,6 +3,7 @@ from django.db import models
 
 
 class User(AbstractUser):
+    id = models.IntegerField(primary_key=True)
     pass
 
 class Listing(models.Model):
