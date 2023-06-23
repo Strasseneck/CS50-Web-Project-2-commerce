@@ -5,9 +5,20 @@
     <h1>Listing: {{ listing.title }}</h1>
     <img src="{{ listing.img_url }}">
     <div>{{ listing.description }}</div>
-    <strong>{{ listing.starting_bid }}</strong>
-    <div>BIDS</div>
-    <button>PLACE BID</button>
+    <strong>Curent Bid: {{ listing.starting_bid }}</strong>
+    {% if request.user.is_authenticated %}
+        <div class="info-container">
+            <div>
+                <button>ADD TO WATCH LIST</button>
+            </div>
+            <div>
+                <button>PLACE BID</button>
+            </div>
+            <div>
+                <textarea>Type your comment here</textarea>
+            </div>
+        </div>
+    {% endif %}
     <h2>Details</h2>
     <ul>
         <li>{{ listing.seller }}</li>

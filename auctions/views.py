@@ -76,16 +76,16 @@ def save_listing(request):
         title = request.POST["title"]
         description = request.POST["description"]
         img = request.POST["img_url"]
-        bid = request.POST["starting_bid"]
+        starting_bid = request.POST["starting_bid"]
         category = request.POST["category"] 
         seller = User.objects.get(username=request.user.username)
         # Save listing
-        listing = Listing(title=title,description=description,img_url=img,starting_bid=bid,category=category,seller=seller)
+        listing = Listing(title=title,description=description,img_url=img,price=starting_bid,category=category,seller=seller)
         listing.save()
         return render(request, "auctions/index.html")
 
 def listing(request, title):
-    listing = Listing.objects.get(title=title)
+    listing = Listing.objects.get(title=title) 
     return render(request, "auctions/listing.html", {
         "listing": listing
     })
