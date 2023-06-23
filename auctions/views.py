@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -64,9 +65,11 @@ def register(request):
     else:
         return render(request, "auctions/register.html")
 
+@login_required
 def new_listing(request):
     return render(request, "auctions/new_listing.html")
 
+@login_required
 def save_listing(request):
     if request.method == "POST":
         # Get data from form
@@ -74,9 +77,10 @@ def save_listing(request):
         description = request.POST["description"]
         img = request.POST["img_url"]
         bid = request.POST["starting_bid"]
-        category = request.POST["category"]
+        category = request.POST["category"] 
+        seller = User.objects.get(username=request.user.username)
         # Save listing
-        listing = Listing(title=title,description=description,img_url=img,starting_bid=bid,category=category)
+        listing = Listing(title=title,description=description,img_url=img,starting_bid=bid,category=category,seller=seller)
         listing.save()
         return render(request, "auctions/index.html")
 
@@ -84,6 +88,5 @@ def listing(request, title):
     listing = Listing.objects.get(title=title)
     return render(request, "auctions/listing.html", {
         "listing": listing
-
     })
 

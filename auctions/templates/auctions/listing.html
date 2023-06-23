@@ -10,8 +10,14 @@
     <button>PLACE BID</button>
     <h2>Details</h2>
     <ul>
-        <li>CREATOR</li>
+        <li>{{ listing.seller }}</li>
+        <li>Listed On: {{ listing.created }}</li>
+        {% if listing.category %}
         <li>Category: {{ listing.category }}</li>
+        {% endif %}
+        {% if not listing.category %}
+        <li>No Category Listed</li>
+        {% endif %}
     </ul>
 </div>
 {% endblock %}
