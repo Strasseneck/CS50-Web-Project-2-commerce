@@ -14,7 +14,6 @@ class Listing(models.Model):
     created = models.DateTimeField(auto_now=True)
     seller = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
 
-
     def __str__(self):
         return f"{self.title}"
 
@@ -29,3 +28,7 @@ class Comment(models.Model):
 
 class Seller (models.Model):
     name = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sellers")
+
+class Watchlist (models.Model):
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="users")
+    item = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="watchlist_items")
