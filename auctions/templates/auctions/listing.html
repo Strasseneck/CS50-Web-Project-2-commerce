@@ -2,21 +2,28 @@
 
 {% block body %}
 <div class="container-fluid">
-    <h1>Listing: {{ listing.title }}</h1>
-    <img src="{{ listing.img_url }}">
-    <div>{{ listing.description }}</div>
-    <strong>Curent Bid: {{ listing.starting_bid }}</strong>
-    {% if request.user.is_authenticated %}
+    <div class="info-container">
+        <h1>Listing: {{ listing.title }}</h1>
+        {% if request.user.is_authenticated %}
+            <form action="{% url 'add_watchlist' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" id="title" name="title" value="{{ listing.title }}">
+                <input class="btn btn-secondary btn-sm" type="submit" value="Watchlist">
+            </form>
+        <div><img src="{{ listing.img_url }}"></div>
+        <div>{{ listing.description }}</div>
+        <strong>Price: {{ listing.starting_bid }}</strong>
+    </div>  
         <div class="info-container">
             <div>
-                <button>ADD TO WATCH LIST</button>
+                <button type="button" formaction="{% url 'place_bid' %}" method='post' class="btn btn-primary">Place Bid</button>
             </div>
-            <div>
-                <button>PLACE BID</button>
-            </div>
-            <div>
-                <textarea>Type your comment here</textarea>
-            </div>
+            <form action="{% url 'add_comment' %}" method="post">
+                <div class="form-group">
+                    <label for="description">Comment</label>
+                    <textarea class="form-control" name="comment" id="comment" rows="2" placeholder="Enter your comment here"></textarea>
+                </div>
+            </form>           
         </div>
     {% endif %}
     <h2>Details</h2>

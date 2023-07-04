@@ -1,18 +1,28 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
+from django.db.models import Count
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
 from .models import User
-from auctions.models import Listing
+from auctions.models import Listing, Watchlist, Bid, Comment, Seller
 
 
 def index(request):
-    return render(request, "auctions/index.html", {
+    # Get data for watchlist badge
+    if request.user.is_authenticated:
+        current_user = request.user.id
+        count = Watchlist.objects.filter(owner=current_user).count()
+        return render(request, "auctions/index.html", {
+        "listings": Listing.objects.all(),
+        "count": count
+        })
+    else:
+        return render(request, "auctions/index.html", {
         "listings": Listing.objects.all()
-    })
+        })
 
 
 def login_view(request):
@@ -72,6 +82,7 @@ def new_listing(request):
 @login_required
 def save_listing(request):
     if request.method == "POST":
+
         # Get data from form
         title = request.POST["title"]
         description = request.POST["description"]
@@ -79,6 +90,7 @@ def save_listing(request):
         starting_bid = request.POST["starting_bid"]
         category = request.POST["category"] 
         seller = User.objects.get(username=request.user.username)
+
         # Save listing
         listing = Listing(title=title,description=description,img_url=img,price=starting_bid,category=category,seller=seller)
         listing.save()
@@ -90,3 +102,36 @@ def listing(request, title):
         "listing": listing
     })
 
+@login_required
+def add_watchlist(request):
+    if request.method == "POST":
+
+        # Get data from form
+        title = request.POST['title']
+        listing = Listing.objects.get(title=title) 
+        item = listing
+        owner = User.objects.get(username=request.user.username)
+        watchlist = Watchlist(owner=owner, item=item)
+
+        # Save watchlist item
+        watchlist.save()
+        return render(request, "auctions/listing.html", {
+        "listing": listing
+    })
+
+
+@login_required
+def watchlist(request):
+    return None
+
+@login_required
+def add_comment(request):
+    return None
+
+@login_required
+def categories(request):
+    return None
+
+@login_required
+def place_bid(request):
+    return None

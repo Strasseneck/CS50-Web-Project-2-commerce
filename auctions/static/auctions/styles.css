@@ -6,8 +6,17 @@ body {
     flex-direction: row;
 }
 
+.container-fluid {
+    padding: 1px;
+}
+
+img {
+    margin: 2px;
+}
+
 .info-container {
     flex-direction: column;
+    padding: 1px;
 }
 
 .listing-container {
