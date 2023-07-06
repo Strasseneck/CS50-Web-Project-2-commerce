@@ -97,10 +97,24 @@ def save_listing(request):
         return render(request, "auctions/index.html")
 
 def listing(request, title):
-    listing = Listing.objects.get(title=title) 
-    return render(request, "auctions/listing.html", {
-        "listing": listing
-    })
+    current_user = request.user.id
+    if not request.user.is_authenticated:
+        listing = Listing.objects.get(title=title)
+        return render(request, "auctions/listing.html", {
+            "listing": listing
+            })
+    else:
+        listing = Listing.objects.get(title=title)
+        count = Watchlist.objects.filter(owner=current_user).count()
+        watchlist = Watchlist.objects.filter(owner=current_user, item=listing)    
+        return render(request, "auctions/listing.html", {
+            "listing": listing,
+            "watchlist": watchlist,
+            "count": count
+        })
+        
+
+   
 
 @login_required
 def add_watchlist(request):
@@ -118,6 +132,11 @@ def add_watchlist(request):
         return render(request, "auctions/listing.html", {
         "listing": listing
     })
+
+@login_required
+def remove_watchlist(request):
+    return None
+
 
 
 @login_required

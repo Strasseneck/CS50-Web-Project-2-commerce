@@ -5,15 +5,26 @@
     <div class="info-container">
         <h1>Listing: {{ listing.title }}</h1>
         {% if request.user.is_authenticated %}
-            <form action="{% url 'add_watchlist' %}" method="post">
-                {% csrf_token %}
-                <input type="hidden" id="title" name="title" value="{{ listing.title }}">
-                <input class="btn btn-secondary btn-sm" type="submit" value="Watchlist">
-            </form>
-        <div><img src="{{ listing.img_url }}"></div>
-        <div>{{ listing.description }}</div>
-        <strong>Price: {{ listing.starting_bid }}</strong>
-    </div>  
+            {% if watchlist %}
+                <span class="badge badge-secondary">Watchlist</span>
+            {% endif %}           
+            <div><img src="{{ listing.img_url }}"></div>
+            <div>{{ listing.description }}</div>
+            <strong>Price: {{ listing.starting_bid }}</strong>
+            {% if watchlist %}
+                <form action="{% url 'remove_watchlist' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" id="title" name="title" value="{{ listing.title }}">
+                    <input class="btn btn-primary btn-sm" type="submit" value="- Watchlist">
+                </form>
+            {% else %}
+                <form action="{% url 'add_watchlist' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" id="title" name="title" value="{{ listing.title }}">
+                    <input class="btn btn-primary btn-sm" type="submit" value="+ Watchlist">
+                </form>
+            {% endif %}           
+        </div>  
         <div class="info-container">
             <div>
                 <button type="button" formaction="{% url 'place_bid' %}" method='post' class="btn btn-primary">Place Bid</button>
@@ -24,8 +35,8 @@
                     <textarea class="form-control" name="comment" id="comment" rows="2" placeholder="Enter your comment here"></textarea>
                 </div>
             </form>           
-        </div>
-    {% endif %}
+    </div>
+        {% endif %}
     <h2>Details</h2>
     <ul>
         <li>{{ listing.seller }}</li>
