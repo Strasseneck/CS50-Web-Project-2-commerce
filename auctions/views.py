@@ -113,9 +113,6 @@ def listing(request, title):
             "count": count
         })
         
-
-   
-
 @login_required
 def add_watchlist(request):
     if request.method == "POST":
@@ -129,19 +126,32 @@ def add_watchlist(request):
 
         # Save watchlist item
         watchlist.save()
-        return render(request, "auctions/listing.html", {
-        "listing": listing
-    })
+        return HttpResponseRedirect(reverse("listing", args=(title,)))
+
 
 @login_required
 def remove_watchlist(request):
-    return None
+    if request.method == "POST":
+        current_user = request.user.id
+        title = request.POST['title']
+        listing = Listing.objects.get(title=title) 
+        watchlist = Watchlist.objects.filter(owner=current_user, item=listing)    
 
-
+        # Delete watchlist item
+        watchlist.delete()
+        return HttpResponseRedirect(reverse("listing", args=(title,)))
 
 @login_required
 def watchlist(request):
-    return None
+    listings = []
+    current_user = request.user.id
+    watchlist = Watchlist.objects.filter(owner=current_user)
+    for i in range(len(watchlist)):
+        listings.append(watchlist[i].item)  
+    print(listings)
+    return render(request, "auctions/watchlist.html", {
+        "listings": listings
+    })
 
 @login_required
 def add_comment(request):

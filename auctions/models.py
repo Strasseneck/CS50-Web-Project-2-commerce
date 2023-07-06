@@ -31,4 +31,4 @@ class Seller (models.Model):
 
 class Watchlist (models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="users")
-    item = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="items")
+    item = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="listings")
