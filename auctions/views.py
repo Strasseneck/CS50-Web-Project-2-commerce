@@ -89,7 +89,7 @@ def save_listing(request):
         img = request.POST["img_url"]
         starting_bid = request.POST["starting_bid"]
         category = request.POST["category"] 
-        seller = User.objects.get(username=request.user.username)
+        seller = request.user
 
         # Save listing
         listing = Listing(title=title,description=description,img_url=img,starting_bid=starting_bid,category=category,seller=seller)
@@ -106,11 +106,17 @@ def listing(request, title):
     else:
         listing = Listing.objects.get(title=title)
         count = Watchlist.objects.filter(owner=current_user).count()
-        watchlist = Watchlist.objects.filter(owner=current_user, item=listing)    
+        watchlist = Watchlist.objects.filter(owner=current_user, item=listing)
+        current_user = request.user.id
+        if current_user == listing.seller.id:
+            seller = 'Yes'
+        else:
+            seller = 'No'
         return render(request, "auctions/listing.html", {
             "listing": listing,
             "watchlist": watchlist,
-            "count": count
+            "count": count,
+            "seller": seller
         })
         
 @login_required
@@ -121,7 +127,7 @@ def add_watchlist(request):
         title = request.POST['title']
         listing = Listing.objects.get(title=title) 
         item = listing
-        owner = User.objects.get(username=request.user.username)
+        owner = request.user
         watchlist = Watchlist(owner=owner, item=item)
 
         # Save watchlist item
@@ -131,7 +137,7 @@ def add_watchlist(request):
 @login_required
 def remove_watchlist(request):
     if request.method == "POST":
-        current_user = request.user.id
+        current_user = request.user
         title = request.POST['title']
         listing = Listing.objects.get(title=title) 
         watchlist = Watchlist.objects.filter(owner=current_user, item=listing)    
@@ -143,7 +149,7 @@ def remove_watchlist(request):
 @login_required
 def watchlist(request):
     listings = []
-    current_user = request.user.id
+    current_user = request.user
     watchlist = Watchlist.objects.filter(owner=current_user)
     for i in range(len(watchlist)):
         listings.append(watchlist[i].item)  
@@ -155,6 +161,7 @@ def watchlist(request):
 def place_bid(request):
         if request.method == "POST":
             title = request.POST['title']
+            bidder = request.user
 
             # check bid is higher than starting price
             listing = Listing.objects.get(title=title)
@@ -165,20 +172,30 @@ def place_bid(request):
             else:
 
                 # check bid is higher than current bid
-                current_price = listing.current_bid
+                current_price = float(listing.current_bid.amount)     
                 if current_price == None:
-                    listing.current_bid = bid
+                   
+                    # save bid
+                    new_bid = Bid(amount=bid, bidder=bidder)
+                    new_bid.save()
+                    listing.current_bid = new_bid
                     listing.save()
                     return HttpResponseRedirect(reverse("listing", args=(title,)))
                 else:
                     if current_price >= bid:
                         return HttpResponse("Your bid must be higher than then the current highest bid")
                     else:
-                        listing.current_bid = bid
+                        
+                        # save bid
+                        new_bid = Bid(amount=bid, bidder=bidder)
+                        new_bid.save()
+                        listing.current_bid = new_bid
                         listing.save()
                         return HttpResponseRedirect(reverse("listing", args=(title,)))
-                  
-
+                    
+@login_required
+def close_listing(request):
+    return None
 
 @login_required
 def add_comment(request):

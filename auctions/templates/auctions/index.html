@@ -14,8 +14,11 @@
                     <a href="/listing/{{ listing.title }}">{{ listing.title }}</a>
                 </div>
                 <div>
-                    <strong>Price: $ {{ listing.starting_bid }}</strong>
-                </div>
+                    {% if listing.current_bid is not None %}
+                    <strong>Current Bid: {{ listing.current_bid.amount }}</strong>
+                {% else %}
+                    <strong>Price: {{ listing.starting_bid }}</strong>
+                {% endif %}
                 <div>{{ listing.description }}</div>
             </div> 
         </div> 

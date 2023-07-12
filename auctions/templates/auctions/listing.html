@@ -2,13 +2,16 @@
 
 {% block body %}
 
-{% if message %}
-<div>{{ message }}</div>
-{% endif %}
-
 <div class="container-fluid">
     <div class="info-container">
         <h1>Listing: {{ listing.title }}</h1>
+        {% if seller == 'Yes' %}
+            <form action="{% url 'close_listing' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" id="title" name="title" value="{{ listing.title }}">
+                <input class="btn btn-primary btn-sm" type="submit" value="Close Listing">
+            </form>
+        {% endif %}
         {% if request.user.is_authenticated %}
             {% if watchlist %}
                 <span class="badge badge-secondary">Watchlist</span>
@@ -16,7 +19,7 @@
             <div><img src="{{ listing.img_url }}"></div>
             <div>{{ listing.description }}</div>
             {% if listing.current_bid is not None %}
-                <strong>Current Bid: {{ listing.current_bid }}</strong>
+                <strong>Current Bid: {{ listing.current_bid.amount }}</strong>
             {% else %}
                 <strong>Price: {{ listing.starting_bid }}</strong>
             {% endif %}

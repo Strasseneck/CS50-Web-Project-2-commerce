@@ -4,23 +4,25 @@ from django.db import models
 
 class User(AbstractUser):
     pass
-   
+
+class Bid(models.Model):
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    bidder = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name="bidders")
+
 class Listing(models.Model):
     title = models.CharField(max_length=80)
     description = models.CharField(max_length=800)
-    current_bid = models.DecimalField(null=True, blank=True, max_digits=10, decimal_places=2)
     starting_bid = models.DecimalField(null=True, max_digits=10, decimal_places=2)
+    current_bid = models.ForeignKey(Bid, null=True, blank=True, on_delete=models.CASCADE, related_name="bids")
     img_url = models.URLField(null=True, blank=True)
     category = models.CharField(max_length=80)
     created = models.DateTimeField(auto_now=True)
     seller = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
+    winner = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name="winners")
+    closed = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.title}"
-
-class Bid(models.Model):
-    amount = models.DecimalField(max_digits=12, decimal_places=6)
-    bidder = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name="bidders")
 
 class Comment(models.Model):
     content = models.CharField(max_length=80)
