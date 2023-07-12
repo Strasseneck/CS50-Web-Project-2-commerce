@@ -1,6 +1,11 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
+
+{% if message %}
+<div>{{ message }}</div>
+{% endif %}
+
 <div class="container-fluid">
     <div class="info-container">
         <h1>Listing: {{ listing.title }}</h1>
@@ -10,7 +15,11 @@
             {% endif %}           
             <div><img src="{{ listing.img_url }}"></div>
             <div>{{ listing.description }}</div>
-            <strong>Price: {{ listing.starting_bid }}</strong>
+            {% if listing.current_bid is not None %}
+                <strong>Current Bid: {{ listing.current_bid }}</strong>
+            {% else %}
+                <strong>Price: {{ listing.starting_bid }}</strong>
+            {% endif %}
             {% if watchlist %}
                 <form action="{% url 'remove_watchlist' %}" method="post">
                     {% csrf_token %}
@@ -26,9 +35,17 @@
             {% endif %}           
         </div>  
         <div class="info-container">
-            <div>
-                <button type="button" formaction="{% url 'place_bid' %}" method='post' class="btn btn-primary">Place Bid</button>
+            <div class="input-group-sm mb-2">
+                <div class="input-group-prepend">
+                    <form action="{% url 'place_bid' %}" method="post">
+                        {% csrf_token %}
+                        <input type="text" maxlength="8" name="bid" aria-label="Amount (to the nearest dollar)">
+                        <input type="hidden" id="title" name="title" value="{{ listing.title }}">
+                        <button type="submit" class="btn btn-primary">Place Bid</button>
+                    </form>
+                </div>
             </div>
+         </div>
             <form action="{% url 'add_comment' %}" method="post">
                 <div class="form-group">
                     <label for="description">Comment</label>

@@ -92,9 +92,9 @@ def save_listing(request):
         seller = User.objects.get(username=request.user.username)
 
         # Save listing
-        listing = Listing(title=title,description=description,img_url=img,price=starting_bid,category=category,seller=seller)
+        listing = Listing(title=title,description=description,img_url=img,starting_bid=starting_bid,category=category,seller=seller)
         listing.save()
-        return render(request, "auctions/index.html")
+        return HttpResponseRedirect(reverse("index"))
 
 def listing(request, title):
     current_user = request.user.id
@@ -116,7 +116,7 @@ def listing(request, title):
 @login_required
 def add_watchlist(request):
     if request.method == "POST":
-
+        
         # Get data from form
         title = request.POST['title']
         listing = Listing.objects.get(title=title) 
@@ -127,7 +127,6 @@ def add_watchlist(request):
         # Save watchlist item
         watchlist.save()
         return HttpResponseRedirect(reverse("listing", args=(title,)))
-
 
 @login_required
 def remove_watchlist(request):
@@ -148,10 +147,38 @@ def watchlist(request):
     watchlist = Watchlist.objects.filter(owner=current_user)
     for i in range(len(watchlist)):
         listings.append(watchlist[i].item)  
-    print(listings)
     return render(request, "auctions/watchlist.html", {
         "listings": listings
     })
+
+@login_required
+def place_bid(request):
+        if request.method == "POST":
+            title = request.POST['title']
+
+            # check bid is higher than starting price
+            listing = Listing.objects.get(title=title)
+            starting_price = listing.starting_bid
+            bid = float(request.POST['bid'])
+            if starting_price > bid:
+                return HttpResponse("Your bid must be greater than or equal to the starting bid!")
+            else:
+
+                # check bid is higher than current bid
+                current_price = listing.current_bid
+                if current_price == None:
+                    listing.current_bid = bid
+                    listing.save()
+                    return HttpResponseRedirect(reverse("listing", args=(title,)))
+                else:
+                    if current_price >= bid:
+                        return HttpResponse("Your bid must be higher than then the current highest bid")
+                    else:
+                        listing.current_bid = bid
+                        listing.save()
+                        return HttpResponseRedirect(reverse("listing", args=(title,)))
+                  
+
 
 @login_required
 def add_comment(request):
@@ -161,6 +188,3 @@ def add_comment(request):
 def categories(request):
     return None
 
-@login_required
-def place_bid(request):
-    return None
