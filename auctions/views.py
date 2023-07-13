@@ -116,7 +116,8 @@ def listing(request, title):
             "listing": listing,
             "watchlist": watchlist,
             "count": count,
-            "seller": seller
+            "seller": seller,
+            "current_user": current_user
         })
         
 @login_required
@@ -195,7 +196,19 @@ def place_bid(request):
                     
 @login_required
 def close_listing(request):
-    return None
+    if request.method == "POST":
+        # get title and listing object
+        title = request.POST['title']
+        listing = Listing.objects.get(title=title)
+        winner = listing.current_bid.bidder
+        print(winner)
+
+        # edit and save listing
+        listing.winner = winner
+        listing.closed = True
+        listing.save()
+        return HttpResponseRedirect(reverse("listing", args=(title,)))
+
 
 @login_required
 def add_comment(request):

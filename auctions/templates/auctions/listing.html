@@ -5,68 +5,82 @@
 <div class="container-fluid">
     <div class="info-container">
         <h1>Listing: {{ listing.title }}</h1>
-        {% if seller == 'Yes' %}
+        {% if listing.closed == True %}
+            <h2>This auction is closed!</h2>
+        {% endif %}
+        {% if current_user == listing.winner %}
+            <strong> Congratulations, you won this auction! </strong>
+        {% endif %}
+        {% if seller == 'Yes' and listing.closed == False %}
             <form action="{% url 'close_listing' %}" method="post">
                 {% csrf_token %}
                 <input type="hidden" id="title" name="title" value="{{ listing.title }}">
                 <input class="btn btn-primary btn-sm" type="submit" value="Close Listing">
             </form>
         {% endif %}
-        {% if request.user.is_authenticated %}
+        {% if request.user.is_authenticated and listing.closed == False %}
             {% if watchlist %}
                 <span class="badge badge-secondary">Watchlist</span>
-            {% endif %}           
+            {% endif %}
+        {% endif %}           
             <div><img src="{{ listing.img_url }}"></div>
             <div>{{ listing.description }}</div>
             {% if listing.current_bid is not None %}
-                <strong>Current Bid: {{ listing.current_bid.amount }}</strong>
+                {% if listing.closed == True %}
+                    <strong>Sold For: {{ listing.current_bid.amount }}</strong>
+                {% else %}
+                    <strong>Current Bid: {{ listing.current_bid.amount }}</strong>
+                {% endif %}
             {% else %}
                 <strong>Price: {{ listing.starting_bid }}</strong>
             {% endif %}
-            {% if watchlist %}
-                <form action="{% url 'remove_watchlist' %}" method="post">
-                    {% csrf_token %}
-                    <input type="hidden" id="title" name="title" value="{{ listing.title }}">
-                    <input class="btn btn-primary btn-sm" type="submit" value="- Watchlist">
-                </form>
-            {% else %}
-                <form action="{% url 'add_watchlist' %}" method="post">
-                    {% csrf_token %}
-                    <input type="hidden" id="title" name="title" value="{{ listing.title }}">
-                    <input class="btn btn-primary btn-sm" type="submit" value="+ Watchlist">
-                </form>
-            {% endif %}           
-        </div>  
-        <div class="info-container">
-            <div class="input-group-sm mb-2">
-                <div class="input-group-prepend">
-                    <form action="{% url 'place_bid' %}" method="post">
+            {% if request.user.is_authenticated %}
+                {% if watchlist and listing.closed == False %}
+                    <form action="{% url 'remove_watchlist' %}" method="post">
                         {% csrf_token %}
-                        <input type="text" maxlength="8" name="bid" aria-label="Amount (to the nearest dollar)">
                         <input type="hidden" id="title" name="title" value="{{ listing.title }}">
-                        <button type="submit" class="btn btn-primary">Place Bid</button>
+                        <input class="btn btn-primary btn-sm" type="submit" value="- Watchlist">
                     </form>
+                {% else %}
+                    <form action="{% url 'add_watchlist' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" id="title" name="title" value="{{ listing.title }}">
+                        <input class="btn btn-primary btn-sm" type="submit" value="+ Watchlist">
+                    </form>
+                {% endif %}
+                {% if listing.closed == False %}
+                <div class="info-container">
+                    <div class="input-group-sm mb-2">
+                        <div class="input-group-prepend">
+                            <form action="{% url 'place_bid' %}" method="post">
+                                {% csrf_token %}
+                                <input type="text" maxlength="8" name="bid" aria-label="Amount (to the nearest dollar)">
+                                <input type="hidden" id="title" name="title" value="{{ listing.title }}">
+                                <button type="submit" class="btn btn-primary">Place Bid</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-            </div>
-         </div>
-            <form action="{% url 'add_comment' %}" method="post">
-                <div class="form-group">
-                    <label for="description">Comment</label>
-                    <textarea class="form-control" name="comment" id="comment" rows="2" placeholder="Enter your comment here"></textarea>
-                </div>
-            </form>           
+                    <form action="{% url 'add_comment' %}" method="post">
+                        <div class="form-group">
+                            <label for="description">Comment</label>
+                            <textarea class="form-control" name="comment" id="comment" rows="2" placeholder="Enter your comment here"></textarea>
+                        </div>
+                    </form>  
+                </div>         
+                {% endif %}
+            {% endif %}
+            <h2>Details</h2>
+            <ul>
+                <li>{{ listing.seller }}</li>
+                <li>Listed On: {{ listing.created }}</li>
+                {% if listing.category %}
+                    <li>Category: {{ listing.category }}</li>
+                {% endif %}
+                {% if not listing.category %}
+                    <li>No Category Listed</li>
+                {% endif %}
+            </ul>
     </div>
-        {% endif %}
-    <h2>Details</h2>
-    <ul>
-        <li>{{ listing.seller }}</li>
-        <li>Listed On: {{ listing.created }}</li>
-        {% if listing.category %}
-        <li>Category: {{ listing.category }}</li>
-        {% endif %}
-        {% if not listing.category %}
-        <li>No Category Listed</li>
-        {% endif %}
-    </ul>
 </div>
 {% endblock %}
