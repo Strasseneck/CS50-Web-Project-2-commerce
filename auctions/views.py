@@ -24,8 +24,9 @@ def index(request):
         "count": count
         })
     else:
+        active_listings = Listing.objects.filter(closed=False)
         return render(request, "auctions/index.html", {
-        "listings": Listing.objects.all()
+        "active_listings": active_listings
         })
 
 
@@ -101,6 +102,8 @@ def save_listing(request):
         return HttpResponseRedirect(reverse("index"))
 
 def listing(request, title):
+
+    # get user data and render if not logged in
     current_user = request.user.id
     if not request.user.is_authenticated:
         listing = Listing.objects.get(title=title)
@@ -108,10 +111,13 @@ def listing(request, title):
             "listing": listing
             })
     else:
+
+        # logged in view
         listing = Listing.objects.get(title=title)
         count = Watchlist.objects.filter(owner=current_user).count()
         watchlist = Watchlist.objects.filter(owner=current_user, item=listing)
         current_user = request.user.id
+        comments = Comment.objects.filter(listing=listing)
         if current_user == listing.seller.id:
             seller = 'Yes'
         else:
@@ -121,7 +127,8 @@ def listing(request, title):
             "watchlist": watchlist,
             "count": count,
             "seller": seller,
-            "current_user": current_user
+            "current_user": current_user,
+            "comments": comments
         })
         
 @login_required
@@ -177,7 +184,7 @@ def place_bid(request):
             else:
 
                 # check bid is higher than current bid
-                current_price = float(listing.current_bid.amount)     
+                current_price = listing.current_bid   
                 if current_price == None:
                    
                     # save bid
@@ -187,6 +194,10 @@ def place_bid(request):
                     listing.save()
                     return HttpResponseRedirect(reverse("listing", args=(title,)))
                 else:
+
+                    # convert to float
+                    current_price = listing.current_bid.amount
+                    current_price = float(current_price)
                     if current_price >= bid:
                         return HttpResponse("Your bid must be higher than then the current highest bid")
                     else:
@@ -216,7 +227,19 @@ def close_listing(request):
 
 @login_required
 def add_comment(request):
-    return None
+    if request.method == "POST":
+
+        # get title and return comments
+        title = request.POST['title']
+        listing = Listing.objects.get(title=title)
+        author = request.user
+        content = request.POST['comment']
+        
+        # create and save comment and render
+        comment = Comment(listing=listing,content=content, author=author)
+        comment.save()
+        return HttpResponseRedirect(reverse("listing", args=(title,)))
+
 
 @login_required
 def categories(request):

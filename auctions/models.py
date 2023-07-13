@@ -25,6 +25,7 @@ class Listing(models.Model):
         return f"{self.title}"
 
 class Comment(models.Model):
+    listing = models.ForeignKey(Listing, null=True, on_delete=models.CASCADE, related_name="commented_listings")
     content = models.CharField(max_length=80)
     author = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name="commenters")
     time = models.DateTimeField(auto_now=True)

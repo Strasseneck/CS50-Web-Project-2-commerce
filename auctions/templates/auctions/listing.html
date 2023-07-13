@@ -7,9 +7,9 @@
         <h1>Listing: {{ listing.title }}</h1>
         {% if listing.closed == True %}
             <h2>This auction is closed!</h2>
-        {% endif %}
-        {% if current_user == listing.winner %}
-            <strong> Congratulations, you won this auction! </strong>
+            {% if current_user == listing.winner.id %}
+                <strong> Congratulations, you won this auction! </strong>
+            {% endif %}
         {% endif %}
         {% if seller == 'Yes' and listing.closed == False %}
             <form action="{% url 'close_listing' %}" method="post">
@@ -61,13 +61,22 @@
                     </div>
                 </div>
                 <form action="{% url 'add_comment' %}" method="post">
+                    {% csrf_token %}
                     <div class="form-group">
                         <label for="description">Comment</label>
                         <textarea class="form-control" name="comment" id="comment" rows="2" placeholder="Enter your comment here"></textarea>
+                        <input type="hidden" id="title" name="title" value="{{ listing.title }}">
+                        <button type="submit" class="btn btn-primary">Save Comment</button>
                     </div>
                 </form>
             {% endif %}  
-            </div>         
+            </div>
+
+            {% for comment in comments %}
+                <p>{{ comment.content }}</p>
+                <strong>{{ comment.author.username }}</strong>
+                <p>{{ comment.time }}</p>
+            {% endfor %}         
             
             <h2>Details</h2>
             <ul>
