@@ -249,15 +249,19 @@ def add_comment(request):
 
 
 def categories(request):
+
     # Get all listings filter only categories
     listings = Listing.objects.all()
     categories = []
     if request.user.is_authenticated:
         current_user = request.user.id
         count = Watchlist.objects.filter(owner=current_user).count()
+    else:
+        count = None
     for listing in listings:
         category = listing.category
         categories.append(category)
+    categories = list(set(categories))
     return render(request, "auctions/categories.html", {
         "categories": categories,
         "count": count
@@ -269,6 +273,8 @@ def category_listings(request, title):
     if request.user.is_authenticated:
         current_user = request.user.id
         count = Watchlist.objects.filter(owner=current_user).count()
+    else:
+        count = None
     
     # get active listings in category
     listings = Listing.objects.filter(category=title, closed=False)
