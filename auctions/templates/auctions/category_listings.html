@@ -1,0 +1,27 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<h1>Active Listings in {{ category }}</h1>
+
+<div class="container-fluid">
+    {% for listing in listings %}
+        <div class="listing-container">
+            <div class="img-container">
+                <img src="{{ listing.img_url }}" width="300" height="300">
+            </div>  
+            <div class="info-container">
+                <div>
+                    <a href="/listing/{{ listing.title }}">{{ listing.title }}</a>
+                </div>
+                <div>
+                    {% if listing.current_bid is not None %}
+                    <strong>Current Bid: {{ listing.current_bid.amount }}</strong>
+                {% else %}
+                    <strong>Price: {{ listing.starting_bid }}</strong>
+                {% endif %}
+                <div>{{ listing.description }}</div>
+            </div> 
+        </div>        
+    {% endfor %}
+</div>
+{% endblock %}

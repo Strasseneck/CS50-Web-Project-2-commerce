@@ -1,0 +1,9 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<div class="container-fluid">
+    {% for category in categories %}
+        <ul><a href="/category_listings/{{ category }}">{{ category }}</a></ul>
+    {% endfor %}
+</div>
+{% endblock %}

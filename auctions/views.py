@@ -26,7 +26,7 @@ def index(request):
     else:
         active_listings = Listing.objects.filter(closed=False)
         return render(request, "auctions/index.html", {
-        "active_listings": active_listings
+            "active_listings": active_listings
         })
 
 
@@ -82,7 +82,11 @@ def register(request):
 
 @login_required
 def new_listing(request):
-    return render(request, "auctions/new_listing.html")
+    current_user = request.user.id
+    count = Watchlist.objects.filter(owner=current_user).count()
+    return render(request, "auctions/new_listing.html",{
+        "count": count
+    })
 
 @login_required
 def save_listing(request):
@@ -163,10 +167,12 @@ def watchlist(request):
     listings = []
     current_user = request.user
     watchlist = Watchlist.objects.filter(owner=current_user)
+    count = Watchlist.objects.filter(owner=current_user).count()
     for i in range(len(watchlist)):
         listings.append(watchlist[i].item)  
     return render(request, "auctions/watchlist.html", {
-        "listings": listings
+        "listings": listings,
+        "count": count
     })
 
 @login_required
@@ -241,7 +247,36 @@ def add_comment(request):
         return HttpResponseRedirect(reverse("listing", args=(title,)))
 
 
-@login_required
+
 def categories(request):
-    return None
+    # Get all listings filter only categories
+    listings = Listing.objects.all()
+    categories = []
+    if request.user.is_authenticated:
+        current_user = request.user.id
+        count = Watchlist.objects.filter(owner=current_user).count()
+    for listing in listings:
+        category = listing.category
+        categories.append(category)
+    return render(request, "auctions/categories.html", {
+        "categories": categories,
+        "count": count
+    })
+    
+def category_listings(request, title):
+     
+    # count for badge
+    if request.user.is_authenticated:
+        current_user = request.user.id
+        count = Watchlist.objects.filter(owner=current_user).count()
+    
+    # get active listings in category
+    listings = Listing.objects.filter(category=title, closed=False)
+    if not listings:
+        return HttpResponse("There are no active listings in this category")
+    return render(request, "auctions/category_listings.html", {
+        "category": title,
+        "listings": listings,
+        "count": count
+    })
 
