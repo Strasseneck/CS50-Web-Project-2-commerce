@@ -18,7 +18,7 @@
                 <input class="btn btn-primary btn-sm" type="submit" value="Close Listing">
             </form>
         {% endif %}
-        {% if request.user.is_authenticated and listing.closed == False %}
+        {% if request.user.is_authenticated %}
             {% if watchlist %}
                 <span class="badge badge-secondary">Watchlist</span>
             {% endif %}
@@ -34,8 +34,8 @@
             {% else %}
                 <strong>Price: {{ listing.starting_bid }}</strong>
             {% endif %}
-            {% if request.user.is_authenticated %}
-                {% if watchlist and listing.closed == False %}
+            {% if request.user.is_authenticated and listing.closed == False %}         
+                {% if watchlist %}
                     <form action="{% url 'remove_watchlist' %}" method="post">
                         {% csrf_token %}
                         <input type="hidden" id="title" name="title" value="{{ listing.title }}">
@@ -48,7 +48,6 @@
                         <input class="btn btn-primary btn-sm" type="submit" value="+ Watchlist">
                     </form>
                 {% endif %}
-                {% if listing.closed == False %}
                 <div class="info-container">
                     <div class="input-group-sm mb-2">
                         <div class="input-group-prepend">
@@ -61,15 +60,15 @@
                         </div>
                     </div>
                 </div>
-                    <form action="{% url 'add_comment' %}" method="post">
-                        <div class="form-group">
-                            <label for="description">Comment</label>
-                            <textarea class="form-control" name="comment" id="comment" rows="2" placeholder="Enter your comment here"></textarea>
-                        </div>
-                    </form>  
-                </div>         
-                {% endif %}
-            {% endif %}
+                <form action="{% url 'add_comment' %}" method="post">
+                    <div class="form-group">
+                        <label for="description">Comment</label>
+                        <textarea class="form-control" name="comment" id="comment" rows="2" placeholder="Enter your comment here"></textarea>
+                    </div>
+                </form>
+            {% endif %}  
+            </div>         
+            
             <h2>Details</h2>
             <ul>
                 <li>{{ listing.seller }}</li>

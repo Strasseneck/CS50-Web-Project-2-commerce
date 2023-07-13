@@ -14,10 +14,23 @@
                     <a href="/listing/{{ listing.title }}">{{ listing.title }}</a>
                 </div>
                 <div>
-                    <strong>Price: $ {{ listing.starting_bid }}</strong>
+                    {% if listing.current_bid is not None %}
+                        {% if listing.closed == True %}
+                            <strong>Sold For: {{ listing.current_bid.amount }}</strong>
+                        {% else %}
+                            <strong>Current Bid: {{ listing.current_bid.amount }}</strong>
+                        {% endif %}
+                    {% else %}
+                    <strong>Price: {{ listing.starting_bid }}</strong>
+                    {% endif %}
                 </div>
                 <div>{{ listing.description }}</div>
-            </div> 
+            </div>
+            <form action="{% url 'remove_watchlist' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" id="title" name="title" value="{{ listing.title }}">
+                <input class="btn btn-primary btn-sm" type="submit" value="- Watchlist">
+            </form>
         </div> 
         
     {% endfor %}

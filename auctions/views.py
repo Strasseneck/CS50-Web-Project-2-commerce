@@ -11,12 +11,16 @@ from auctions.models import Listing, Watchlist, Bid, Comment, Seller
 
 
 def index(request):
-    # Get data for watchlist badge
     if request.user.is_authenticated:
         current_user = request.user.id
+
+        # get count for watchlist badge
         count = Watchlist.objects.filter(owner=current_user).count()
+
+        # get active listings
+        active_listings = Listing.objects.filter(closed=False)
         return render(request, "auctions/index.html", {
-        "listings": Listing.objects.all(),
+        "active_listings": active_listings,
         "count": count
         })
     else:

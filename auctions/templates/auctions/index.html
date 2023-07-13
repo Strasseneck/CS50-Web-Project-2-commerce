@@ -4,7 +4,7 @@
 <h1>Active Listings</h1>
 
 <div class="container-fluid">
-    {% for listing in listings %}
+    {% for listing in active_listings %}
         <div class="listing-container">
             <div class="img-container">
                 <img src="{{ listing.img_url }}" width="300" height="300">
@@ -21,8 +21,7 @@
                 {% endif %}
                 <div>{{ listing.description }}</div>
             </div> 
-        </div> 
-        
+        </div>        
     {% endfor %}
 </div>
 {% endblock %}
